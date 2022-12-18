@@ -1,0 +1,14 @@
+galaxy_info:
+  role_name: sqlite_backup_b2
+  author: Steffen Uhlig
+  description: Regular backup of an SQLite database to B2
+  license: MIT
+  min_ansible_version: "2.6"
+
+  platforms:
+    - name: Debian
+
+  galaxy_tags:
+    - sqlite
+    - backup
+    - b2

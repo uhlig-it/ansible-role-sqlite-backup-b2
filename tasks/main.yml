@@ -1,0 +1,56 @@
+- name: Dependencies are installed
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+      - jq
+      - sqlite3
+  tags: [ apt ]
+
+- name: b2 tool is present
+  get_url:
+    url: "https://github.com/Backblaze/B2_Command_Line_Tool/releases/download/{{sqlite_backup_b2_tool_version}}/b2-linux"
+    dest: /usr/local/bin/b2
+    mode: "0755"
+  tags: [ b2, binary ]
+
+- name: sqlite-backup-b2 script is present
+  template:
+    src: sqlite-backup-b2.j2
+    dest: "{{ sqlite_backup_b2_script_path }}"
+    mode: "0755"
+  tags: [ b2, script ]
+
+- name: Backup service is present
+  template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ sqlite_backup_b2_prefix }}.service"
+    mode: "0664"
+  register: service_rendered
+  tags: [ systemd, timer ]
+
+- name: Backup service is enabled
+  systemd:
+    name: "{{ sqlite_backup_b2_prefix }}.service"
+    enabled: true
+    daemon_reload: true
+  tags: [ systemd, service ]
+
+- name: Backup timer is present
+  template:
+    src: timer.j2
+    dest: "/etc/systemd/system/{{ sqlite_backup_b2_prefix }}.timer"
+    mode: "0664"
+  tags: [ systemd, timer ]
+
+- name: Backup timer is enabled
+  systemd:
+    name: "{{ sqlite_backup_b2_prefix }}.timer"
+    enabled: true
+    daemon_reload: true
+  tags: [ systemd, timer ]
+
+- name: User message is printed
+  ansible.builtin.debug:
+    msg: "{{ sqlite_backup_b2_prefix }}.{timer,service} are present and will backup {{ sqlite_backup_b2_database_path }} to {{ sqlite_backup_b2_bucket }} at b2 daily."
+  tags: [ message ]

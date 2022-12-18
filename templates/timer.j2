@@ -1,0 +1,12 @@
+[Unit]
+Description=Backup timer for the {{ sqlite_backup_b2_prefix }} database
+After=network-online.target
+
+[Timer]
+OnCalendar=daily
+
+# run at some time within the first four hours of the day
+RandomizedDelaySec=14400
+
+[Install]
+WantedBy=timers.target

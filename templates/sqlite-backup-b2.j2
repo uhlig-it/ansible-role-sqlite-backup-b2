@@ -1,0 +1,34 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# B2_APPLICATION_KEY_ID and B2_APPLICATION_KEY are set in service unit
+b2 authorize-account
+
+localBackupFile="$(mktemp -t {{ sqlite_backup_b2_prefix }}.XXXXXXX)"
+
+# perform backup
+sqlite3 {{ sqlite_backup_b2_database_path }} ".backup $localBackupFile"
+
+# upload backup
+remoteFileName="{{ sqlite_backup_b2_prefix }}.daily-$(date +%A).sqlite3"
+b2 upload-file "{{ sqlite_backup_b2_bucket }}" "$localBackupFile" "$remoteFileName"
+
+# retain backups
+latestFileId="$(b2 ls "{{ sqlite_backup_b2_bucket }}" --json \
+| jq \
+    --arg remoteFileName "$remoteFileName" \
+    --raw-output \
+    '.[] | select(.fileName == $remoteFileName) | .fileId'
+)"
+
+if [ "$(date +%A)" = Sunday ]; then
+  echo "It's Sunday, so we keep today's backup as the one for week $(date +%V)."
+  b2 copy-file-by-id "$latestFileId" "{{ sqlite_backup_b2_bucket }}" "{{ sqlite_backup_b2_prefix }}.week-$(date +%V).sqlite3"
+fi
+
+if [ "$(date +%m-%d)" = 12-31 ]; then
+  echo "It's the last day of the year, so we keep today's backup as the one for $(date +%Y)."
+  b2 copy-file-by-id "$latestFileId" "{{ sqlite_backup_b2_bucket }}" "{{ sqlite_backup_b2_prefix }}.$(date +%Y).sqlite3"
+fi
