@@ -26,7 +26,6 @@
     src: service.j2
     dest: "/etc/systemd/system/{{ sqlite_backup_b2_prefix }}.service"
     mode: "0664"
-  register: service_rendered
   tags: [ systemd, timer ]
 
 - name: Backup service is enabled
