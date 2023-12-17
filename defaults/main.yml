@@ -1,5 +1,5 @@
 sqlite_backup_b2_prefix: "{{ ansible_play_name }}-backup"
-sqlite_backup_b2_tool_version: v3.6.0
+sqlite_backup_b2_tool_version: v3.15.0
 sqlite_backup_b2_script_path: "/usr/local/bin/{{ sqlite_backup_b2_prefix }}-sqlite-backup-b2"
 sqlite_backup_b2_runtime_user: "{{ ansible_user }}"
 sqlite_backup_b2_runtime_group: "{{ ansible_user }}"

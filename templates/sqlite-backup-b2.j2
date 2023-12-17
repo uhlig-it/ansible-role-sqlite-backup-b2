@@ -5,15 +5,13 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# B2_APPLICATION_KEY_ID and B2_APPLICATION_KEY are set in service unit
-b2 authorize-account
-
 localBackupFile="$(mktemp -t {{ sqlite_backup_b2_prefix }}.XXXXXXX)"
 
 # perform backup
 sqlite3 {{ sqlite_backup_b2_database_path }} ".backup $localBackupFile"
 
 # upload backup
+# B2_APPLICATION_KEY_ID and B2_APPLICATION_KEY are set in service unit
 remoteFileName="{{ sqlite_backup_b2_prefix }}.daily-$(date +%A).sqlite3"
 b2 upload-file "{{ sqlite_backup_b2_bucket }}" "$localBackupFile" "$remoteFileName"
 

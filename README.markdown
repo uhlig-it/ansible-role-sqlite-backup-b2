@@ -2,7 +2,14 @@
 
 Performs scheduled backups of an SQLite database and retains them.
 
-A systemd timer creates a daily backup of the database (based on this [article](https://litestream.io/alternatives/cron/)). An S3 bucket is set up to keep the backup files. It is set without versioning, so that we can retain generations independently of the bucket settings.
+A systemd timer creates a daily backup of the database (based on this [article](https://litestream.io/alternatives/cron/)). An [B2](https://www.backblaze.com/cloud-storage) bucket is set up to keep the backup files.
+
+# B2 Bucket
+
+* Create a new bucket without versioning ("Lifecycle Settings" / "Keep only the last version of the file"). This role manages backup generations independently of bucket versioning.
+* Create an application key with
+  - read and write permissions, and
+  - the capability to list all bucket names (required by the `b2` tool)
 
 # Ansible Variables
 

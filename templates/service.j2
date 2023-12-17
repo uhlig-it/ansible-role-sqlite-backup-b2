@@ -6,6 +6,7 @@ After=network-online.target
 
 [Service]
 Type=oneshot
+Environment=B2_ACCOUNT_INFO=/tmp/{{ sqlite_backup_b2_prefix }}.db
 Environment=B2_APPLICATION_KEY_ID={{ sqlite_backup_b2_keyId }}
 Environment=B2_APPLICATION_KEY={{ sqlite_backup_b2_applicationKey }}
 ExecStart={{ sqlite_backup_b2_script_path }}
